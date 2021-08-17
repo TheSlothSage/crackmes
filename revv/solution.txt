@@ -1,0 +1,84 @@
+   ====================================================
+   Solution to revv crackme
+   https://crackmes.one/crackme/60fc687b33c5d42814fb34e0
+   Kaley Sagehorn
+   =====================================================
+
+   	
+	==============================================================================================================
+        001011ce 48 89 e5        MOV        RBP, RSP
+        001011d1 48 83 ec 10     SUB        RSP, 0x10
+        001011d5 48 89 7d f8     MOV        qword ptr [RBP + local_10], param_1
+        001011d9 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+        001011dd 48 89 c7        MOV        param_1, RAX
+     -> 001011e0 e8 bb fe        CALL       strlen                                           ; size_t strlen(char * __s)
+     -> 001011e5 48 83 f8 19     CMP        RAX, 0x19
+        001011e9 76 11           JBE        LAB_001011fc
+        001011eb 48 8d 3d        LEA        param_1, [s_Don't_try_to_hack_me_:D_00102004]    ; = "Don't try to hack me :D"
+        001011f2 e8 99 fe        CALL       puts                                             ; int puts(char * __s)
+        001011f7 e9 bc 01        JMP        LAB_001013b8
+	==============================================================================================================
+   	
+	jumps if strlen(param_1) > 0x19 (25 in decimal). Thus, our string is going to be less than 25 characters. 
+
+	===============================================================================================================
+        00101200 48 89 c7        MOV        param_1, RAX1
+        00101203 e8 98 fe        CALL       strlen                                           ; size_t strlen(char * __s)
+     -> 00101208 48 83 f8 15     CMP        RAX, 0x15
+        0010120c 74 11           JZ         LAB_0010121f
+        0010120e 48 8d 3d        LEA        param_1, [s_Length_mismatch!_:(_0010201c]        ; = "Length mismatch! :("
+        00101215 e8 76 fe        CALL       puts                                             ; int puts(char * __s)
+        0010121a e9 99 01        JMP        LAB_001013b8
+	===============================================================================================================
+	
+	jumps to the other routine if strlen(param_1) = 0x15 (21 in decimal). Our proper key is going to be 21 bytes plus null byte.  
+
+	The number of strings we could have is 255 choose 21. 
+
+	that's 2.8930555e+30 possible strings, which is a lot. brute force is off the table for now.
+
+	===============================================================================================================
+	                             LAB_0010121f                                    XREF[1]:     0010120c(j)
+        0010121f 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+     -> 00101223 48 83 c0 11     ADD        RAX, 0x11
+        00101227 0f b6 00        MOVZX      EAX, byte ptr [RAX]
+        0010122a 3c 31           CMP        AL, 0x31
+        0010122c 0f 85 79        JNZ        LAB_001013ab
+        00101232 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+        00101236 0f b6 00        MOVZX      EAX, byte ptr [RAX]
+        00101239 3c 41           CMP        AL, 0x41
+        0010123b 0f 85 6a        JNZ        LAB_001013ab
+     -> 00101241 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+        00101245 48 83 c0 01     ADD        RAX, 0x1
+        00101249 0f b6 00        MOVZX      EAX, byte ptr [RAX]
+        0010124c 3c 43           CMP        AL, 0x43
+        0010124e 0f 85 57        JNZ        LAB_001013ab
+        00101254 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+     -> 00101258 48 83 c0 02     ADD        RAX, 0x2
+        0010125c 0f b6 00        MOVZX      EAX, byte ptr [RAX]
+	
+	. . . 
+	. . . 
+	. . .
+	
+	0010138e 48 8b 45 f8     MOV        RAX, qword ptr [RBP + local_10]
+        00101392 48 83 c0 14     ADD        RAX, 0x14
+        00101396 0f b6 00        MOVZX      EAX, byte ptr [RAX]
+        00101399 3c 7d           CMP        AL, 0x7d
+        0010139b 75 0e           JNZ        LAB_001013ab
+        0010139d 48 8d 3d        LEA        param_1, [s_Nice_job!_:)_00102030]               ; = "Nice job! :)"
+        001013a4 e8 e7 fc        CALL       puts                                             ; int puts(char * __s)
+        001013a9 eb 0c           JMP        LAB_001013b7
+	
+	============================================================================================================
+
+ 	we can see multiple checks at various positions (rax contains a pointer to our string). essentially we are just checking characters in the string
+	
+	doing this tedious process we get a key: ACTF{N01ce_R3v3r51^g} ... 
+	
+	well that was a whole hour of my life.
+
+	remnux@remnux:~$ ./revv
+	Enter the Password: ACTF{N01ce_R3v3r51^g} 
+	Nice job! :)
+

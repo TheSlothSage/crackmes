@@ -1,2 +1,2 @@
 # crackmes
-crackmes i've done or am doing
+Just a list of CrackMe challenges I've done
